@@ -1,3 +1,6 @@
+/* Package for creating and managing the config file.
+ */
+
 package config
 
 import (
@@ -9,39 +12,59 @@ import (
 	"runtime"
 )
 
+// config data container to be used in the main package.
+type Config struct {
+	Name string
+	OS   string
+}
+
+// Checks User's OS, then looks for the config file and tries to read the
+// data.
+
+// If there is no config file, creates a default one.
 func Load() Config {
 
-	// Checks User's OS, then looks for the config file and tries to read the
-	// data.
-	// If there is no config file, creates a deafult one.
-	// Returns Config struct that can be used in main package.
+	//question about configpath: Is it better to split it into path-filename,
+	//or it doesn't really matter?
 
-	currentOs := runtime.GOOS
-
+	//I initially wanted to split them, but got confused by string
+	//concatenation in Go and decided to opt into a single filepath+filename
+	//string for now.
 	var configPath string
-	switch currentOs {
+	switch runtime.GOOS {
 	case "windows":
-		configPath = "./config.ini"
+		configPath = "./config.json"
 	default:
-		configPath = "./config.ini" // placeholder?
+		log.Fatalf("unsupported OS: %s", runtime.GOOS)
 	}
 
-	conf := Config{}
+	conf := Config{} //TODO:I guess I can just delete this now?
+
+	// TODO: Maybe this should be the other way around now?
+	// Load existing conf by default, create one if not found/errored
+	// on loading.
 	if exists(configPath) {
 		fmt.Println("Found existing config file.")
+		// TODO: should I catch an error// make these funcs return possible
+		// errors too?
 		conf = loadExistingConfig(configPath)
-		// should check if everything is loaded successfully, but I dunno
-		// how.
-	} else {
-		fmt.Println("Config file not found. Creating a default one.")
-		conf = createDefaultConfig(configPath)
+		// TODO: should check if everything is loaded successfully.
 	}
+	fmt.Println("Config file not found. Creating a default one.")
+
+	conf = createDefaultConfig(configPath)
+
+	// minor thing: I don't really like "conf" variable name but I'm stumped
+	// how else to name it comprehensibly. Any ideas?
 	return conf
 }
 
+// Another question: is storing these functions outside Load() scope fine or
+// should have I put them inside Load()? I kinda get confused about
+// these things.
+
+// check file existence
 func exists(filepath string) bool {
-	//this just returns true or false if file already exists at the provided
-	//path.
 
 	info, err := os.Stat(filepath)
 	if os.IsNotExist(err) {
@@ -51,16 +74,13 @@ func exists(filepath string) bool {
 	}
 }
 
-type Config struct {
-	// an object that gets returned to the main package, containing all the
-	// needed parameters as fields.
-	Name string
-	Os   string
-}
+// Just to make sure: is it okay to abstract parts of code away into
+// separate fns like these? I like doing this because it makes it easier to
+// understand the overall flow, but I'm concerned if it unnecessarily
+// spagettifies the code?
 
+// Load config from file.
 func loadExistingConfig(filepath string) Config {
-	// loads data from json at the provided filepath, creates a config struct
-	// with it
 	conf := Config{}
 
 	data, err := os.ReadFile(filepath)
@@ -68,22 +88,28 @@ func loadExistingConfig(filepath string) Config {
 		log.Fatal(err)
 	}
 
-	json.Unmarshal(data, &conf)
-	return conf
+	err = json.Unmarshal(data, &conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return conf //err?
 }
 
+// Create a new config, write to file and load it.
 func createDefaultConfig(filepath string) Config {
-	//Creates a new config with the default data: username and os used.
-	//Then saves it at the default folder.
+
+	//Just making sure: Are these three comment lines fine?
+	//They kinda help to divide the code visually into functional bits.
 
 	//create the conf
-	conf := Config{}
 	currentUser, err := user.Current()
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	conf.Os = runtime.GOOS
-	conf.Name = currentUser.Username
+	conf := Config{
+		OS:   runtime.GOOS,
+		Name: currentUser.Username,
+	}
 
 	//convert to json
 	configData, err := json.Marshal(conf)
@@ -96,8 +122,12 @@ func createDefaultConfig(filepath string) Config {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
-	file.Write([]byte(configData))
 
-	return conf
+	defer file.Close()
+	_, err = file.Write([]byte(configData))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return conf //err?
 }
