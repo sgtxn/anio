@@ -1,8 +1,9 @@
 package main
 
 import (
-	"anio/config"
 	"fmt"
+
+	"anio/config"
 )
 
 func main() {
@@ -14,5 +15,5 @@ func main() {
 	}
 	fmt.Printf(
 		"Hello, %s. This line demonstrates that config "+
-			"was succesfully loaded.", conf.Name)
+			"was successfully loaded.", conf.Name)
 }

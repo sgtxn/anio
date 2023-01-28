@@ -19,7 +19,6 @@ type Config struct {
 
 // [Load]: Checks user's OS, then reads config data from file or creates new.
 func Load() (Config, error) {
-
 	var configPath string
 	switch runtime.GOOS {
 	case "windows":
@@ -47,7 +46,6 @@ func Load() (Config, error) {
 
 // check file existence
 func exists(filepath string) bool {
-
 	info, err := os.Stat(filepath)
 	if os.IsNotExist(err) {
 		return false
@@ -74,8 +72,7 @@ func loadExistingConfig(filepath string) (Config, error) {
 
 // Create a new config, write to file and load it.
 func createDefaultConfig(filepath string) (Config, error) {
-
-	//create the conf
+	// create the conf
 	currentUser, err := user.Current()
 	if err != nil {
 		log.Fatalf(err.Error())
@@ -85,13 +82,13 @@ func createDefaultConfig(filepath string) (Config, error) {
 		Name: currentUser.Username,
 	}
 
-	//convert to json
+	// convert to json
 	configData, err := json.Marshal(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//write it to file
+	// write it to file
 	file, err := os.Create(filepath)
 	if err != nil {
 		log.Fatal(err)
