@@ -12,7 +12,7 @@ func main() {
 	fmt.Println("Loading config.")
 	conf, err := config.Load()
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("Couldn't load config.")
 	}
 	fmt.Printf(
 		"Hello, %s. This line demonstrates that config "+
