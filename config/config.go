@@ -6,10 +6,11 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"os/user"
 	"runtime"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
@@ -24,14 +25,14 @@ func Load() (Config, error) {
 	case "windows":
 		configPath = "./config.json"
 	default:
-		log.Fatalf("unsupported OS: %s", runtime.GOOS)
+		log.Fatal().Msgf("unsupported OS: %s", runtime.GOOS)
 	}
 
 	if !exists(configPath) {
 		fmt.Println("Config file not found. Creating a default one.")
 		conf, err := createDefaultConfig(configPath)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Err(err)
 		}
 		return conf, nil
 	}
@@ -39,7 +40,7 @@ func Load() (Config, error) {
 	fmt.Println("Found existing config file.")
 	conf, err := loadExistingConfig(configPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	return conf, nil
 }
@@ -60,12 +61,12 @@ func loadExistingConfig(filepath string) (Config, error) {
 
 	data, err := os.ReadFile(filepath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	err = json.Unmarshal(data, &conf)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	return conf, nil
 }
@@ -75,7 +76,7 @@ func createDefaultConfig(filepath string) (Config, error) {
 	// create the conf
 	currentUser, err := user.Current()
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal().Err(err)
 	}
 	conf := Config{
 		OS:   runtime.GOOS,
@@ -85,19 +86,19 @@ func createDefaultConfig(filepath string) (Config, error) {
 	// convert to json
 	configData, err := json.Marshal(conf)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	// write it to file
 	file, err := os.Create(filepath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	defer file.Close()
 	_, err = file.Write([]byte(configData))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	return conf, nil

@@ -1,9 +1,10 @@
 package main
 
 import (
+	"anio/config"
 	"fmt"
 
-	"anio/config"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
@@ -11,7 +12,7 @@ func main() {
 	fmt.Println("Loading config.")
 	conf, err := config.Load()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal().Err(err)
 	}
 	fmt.Printf(
 		"Hello, %s. This line demonstrates that config "+
