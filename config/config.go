@@ -5,11 +5,11 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"os"
 	"os/user"
 	"runtime"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
@@ -24,22 +24,22 @@ func Load() (Config, error) {
 	case "windows":
 		configPath = "./config.json"
 	default:
-		log.Fatalf("unsupported OS: %s", runtime.GOOS)
+		log.Fatal().Msgf("unsupported OS: %s", runtime.GOOS)
 	}
 
 	if !exists(configPath) {
-		fmt.Println("Config file not found. Creating a default one.")
+		log.Info().Msg("Config file not found. Creating a default one.")
 		conf, err := createDefaultConfig(configPath)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal().Err(err).Msg("Couldn't create config.")
 		}
 		return conf, nil
 	}
 
-	fmt.Println("Found existing config file.")
+	log.Info().Msg("Found existing config file.")
 	conf, err := loadExistingConfig(configPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Couldn't load config from file.")
 	}
 	return conf, nil
 }
@@ -60,12 +60,12 @@ func loadExistingConfig(filepath string) (Config, error) {
 
 	data, err := os.ReadFile(filepath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Couldn't read file.")
 	}
 
 	err = json.Unmarshal(data, &conf)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Couldn't load data from file to memory.")
 	}
 	return conf, nil
 }
@@ -75,7 +75,7 @@ func createDefaultConfig(filepath string) (Config, error) {
 	// create the conf
 	currentUser, err := user.Current()
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal().Err(err).Msg("Couldn't read user personal data.")
 	}
 	conf := Config{
 		OS:   runtime.GOOS,
@@ -85,19 +85,19 @@ func createDefaultConfig(filepath string) (Config, error) {
 	// convert to json
 	configData, err := json.Marshal(conf)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Couldn't convert user data to JSON.")
 	}
 
 	// write it to file
 	file, err := os.Create(filepath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Couldn't create file.")
 	}
 
 	defer file.Close()
 	_, err = file.Write([]byte(configData))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Couldn't write data to file.")
 	}
 
 	return conf, nil
