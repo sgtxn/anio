@@ -4,7 +4,7 @@ Nothing to see here yet, move on, stranger.
 
 # Development
 ## Enabling linter
-VSCode golang plugin should load `.golangci-ling.yml` configuratin automatically, just make sure you have:
+VSCode golang plugin should load `.golangci-ling.yml` configuration from the repository root automatically, just make sure you have:
 - `go.lintTool` set to `golangci-lint` 
 - `go.lintOnSave` set to `package` preferably
 
