@@ -8,4 +8,6 @@ VSCode golang plugin should load `.golangci-ling.yml` configuratin automatically
 - `go.lintTool` set to `golangci-lint` 
 - `go.lintOnSave` set to `package` preferably
 
-For manual runs execute `make lint`, see the Makefile for further info.
+`make lint` will execute the linter manually in terminal.  
+`make lint_fix` will attempt to fix some of the issues.  
+See the Makefile for further info.  
