@@ -9,12 +9,15 @@ import (
 	"os/user"
 	"runtime"
 
+	anilistCfg "anio/providers/anilist/config"
+
 	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
-	Name string
-	OS   string
+	Name          string
+	OS            string
+	AnilistConfig anilistCfg.Config
 }
 
 // [Load]: Checks user's OS, then reads config data from file or creates new.
