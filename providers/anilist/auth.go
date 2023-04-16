@@ -29,7 +29,7 @@ func Authenticate(ctx context.Context, cfg *config.AuthConfig) (*Auth, error) {
 		},
 	}
 
-	url := conf.AuthCodeURL("test")
+	url := conf.AuthCodeURL("auth_code")
 	log.Info().Msg("Launching the browser to authenticate in anilist...")
 
 	if err := browser.OpenURL(url); err != nil {
