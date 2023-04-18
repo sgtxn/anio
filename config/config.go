@@ -80,7 +80,6 @@ func loadExistingConfig(filePath string) (Config, error) {
 // Create a new config, write to file and load it.
 func createDefaultConfig(folderPath string) (Config, error) {
 	// check if directory exists just in case:
-	_, err := os.Stat(folderPath)
 	if !exists(folderPath) {
 		_ = os.Mkdir(folderPath, os.FileMode(0777)) // permissions for linux
 	}
