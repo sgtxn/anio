@@ -62,14 +62,13 @@ func exists(filepath string) bool {
 }
 
 // Load config from file.
-
 func loadExistingConfig(filePath string) (Config, error) {
+	conf := Config{}
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't read file.")
 	}
 
-	conf := Config{}
 	err = json.Unmarshal(data, &conf)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't load data from file to memory.")
@@ -80,6 +79,7 @@ func loadExistingConfig(filePath string) (Config, error) {
 // Create a new config, write to file and load it.
 func createDefaultConfig(folderPath string) (Config, error) {
 	// check if directory exists just in case:
+	_, err := os.Stat(folderPath)
 	if !exists(folderPath) {
 		_ = os.Mkdir(folderPath, os.FileMode(0777)) // permissions for linux
 	}
@@ -99,6 +99,8 @@ func createDefaultConfig(folderPath string) (Config, error) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't convert user data to JSON.")
 	}
+
+	//
 
 	// write it to file
 	fileName := filepath.Join(folderPath, configFileName)
