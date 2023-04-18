@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"os"
 	"os/user"
+	"path/filepath"
 	"runtime"
 
 	"github.com/rs/zerolog/log"
@@ -17,19 +18,25 @@ type Config struct {
 	OS   string
 }
 
+const configFileName = "config.json"
+const configFolderName = "anio"
+
 // [Load]: Checks user's OS, then reads config data from file or creates new.
 func Load() (Config, error) {
-	var configPath string
+	var configFolderPath string
 	switch runtime.GOOS {
-	case "windows":
-		configPath = "./config.json"
+	case "windows", "linux", "darwin":
+		configFolderPath, _ = os.UserConfigDir()
+		configFolderPath = filepath.Join(configFolderPath, configFolderName)
 	default:
 		log.Fatal().Msgf("unsupported OS: %s", runtime.GOOS)
 	}
 
-	if !exists(configPath) {
+	configFilePath := filepath.Join(configFolderPath, configFileName)
+
+	if !exists(configFilePath) {
 		log.Info().Msg("Config file not found. Creating a default one.")
-		conf, err := createDefaultConfig(configPath)
+		conf, err := createDefaultConfig(configFolderPath)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Couldn't create config.")
 		}
@@ -37,7 +44,7 @@ func Load() (Config, error) {
 	}
 
 	log.Info().Msg("Found existing config file.")
-	conf, err := loadExistingConfig(configPath)
+	conf, err := loadExistingConfig(configFilePath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't load config from file.")
 	}
@@ -46,23 +53,23 @@ func Load() (Config, error) {
 
 // check file existence
 func exists(filepath string) bool {
-	info, err := os.Stat(filepath)
+	_, err := os.Stat(filepath)
 	if os.IsNotExist(err) {
 		return false
 	} else {
-		return !info.IsDir()
+		return true
 	}
 }
 
 // Load config from file.
-func loadExistingConfig(filepath string) (Config, error) {
-	conf := Config{}
 
-	data, err := os.ReadFile(filepath)
+func loadExistingConfig(filePath string) (Config, error) {
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't read file.")
 	}
 
+	conf := Config{}
 	err = json.Unmarshal(data, &conf)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't load data from file to memory.")
@@ -71,7 +78,12 @@ func loadExistingConfig(filepath string) (Config, error) {
 }
 
 // Create a new config, write to file and load it.
-func createDefaultConfig(filepath string) (Config, error) {
+func createDefaultConfig(folderPath string) (Config, error) {
+	// check if directory exists just in case:
+	if !exists(folderPath) {
+		_ = os.Mkdir(folderPath, os.FileMode(0777)) // permissions for linux
+	}
+
 	// create the conf
 	currentUser, err := user.Current()
 	if err != nil {
@@ -89,7 +101,8 @@ func createDefaultConfig(filepath string) (Config, error) {
 	}
 
 	// write it to file
-	file, err := os.Create(filepath)
+	fileName := filepath.Join(folderPath, configFileName)
+	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't create file.")
 	}
