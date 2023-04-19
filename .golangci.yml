@@ -165,7 +165,6 @@ linters:
     - errchkjson        # checks types passed to json encoders
     - exhaustive        # checks exhaustiveness of enum switch statements
     - forbidigo         # forbids some function calls, configurable, by default forbids fmt.Print
-    - gci               # controls package import order
     - gofumpt           # a stricter gofmt
     - goimports         # checks imports order
     - gosec             # checks for security issues
@@ -227,6 +226,7 @@ linters:
   disable:
     # temporarily
     - gocritic          # a huge and opinionated but useful linter; panics on generics, will enable it after it's fixed
+    - gci               # controls package import order. temporarily doesn't work on win
 
     # deprecated
     - golint            # deprecated, replaced with revive
