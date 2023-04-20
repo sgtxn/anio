@@ -56,9 +56,8 @@ func exists(filepath string) bool {
 	_, err := os.Stat(filepath)
 	if os.IsNotExist(err) {
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 // Load config from file.
@@ -73,7 +72,7 @@ func loadExistingConfig(filePath string) (Config, error) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't load data from file to memory.")
 	}
-	return conf, nil
+	return conf, err
 }
 
 // Create a new config, write to file and load it.
@@ -94,10 +93,7 @@ func createDefaultConfig(folderPath string) (Config, error) {
 	}
 
 	// convert to json
-	configData, err := json.Marshal(conf)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Couldn't convert user data to JSON.")
-	}
+	configData, _ := json.Marshal(conf)
 
 	//
 
@@ -109,10 +105,10 @@ func createDefaultConfig(folderPath string) (Config, error) {
 	}
 
 	defer file.Close()
-	_, err = file.Write([]byte(configData))
+	_, err = file.Write(configData)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Couldn't write data to file.")
 	}
 
-	return conf, nil
+	return conf, err
 }
