@@ -95,8 +95,6 @@ func createDefaultConfig(folderPath string) (Config, error) {
 	// convert to json
 	configData, _ := json.Marshal(conf)
 
-	//
-
 	// write it to file
 	fileName := filepath.Join(folderPath, configFileName)
 	file, err := os.Create(fileName)
