@@ -18,25 +18,30 @@ type Config struct {
 	OS   string
 }
 
-const configFileName = "config.json"
-const configFolderName = "anio"
+const (
+	configFileName   = "config.json"
+	configFolderName = "anio"
+)
 
 // [Load]: Checks user's OS, then reads config data from file or creates new.
 func Load() (Config, error) {
-	var configFolderPath string
+	var projectPath string
 	switch runtime.GOOS {
 	case "windows", "linux", "darwin":
-		configFolderPath, _ = os.UserConfigDir()
-		configFolderPath = filepath.Join(configFolderPath, configFolderName)
+		configFolderPath, err := os.UserConfigDir()
+		if err != nil {
+			log.Fatal().Msg("Cannot access user config folder.")
+		}
+		projectPath = filepath.Join(configFolderPath, configFolderName)
 	default:
 		log.Fatal().Msgf("unsupported OS: %s", runtime.GOOS)
 	}
 
-	configFilePath := filepath.Join(configFolderPath, configFileName)
+	configFilePath := filepath.Join(projectPath, configFileName)
 
 	if !exists(configFilePath) {
 		log.Info().Msg("Config file not found. Creating a default one.")
-		conf, err := createDefaultConfig(configFolderPath)
+		conf, err := createDefaultConfig(projectPath)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Couldn't create config.")
 		}
@@ -52,12 +57,9 @@ func Load() (Config, error) {
 }
 
 // check file existence
-func exists(filepath string) bool {
-	_, err := os.Stat(filepath)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
+func exists(filePath string) bool {
+	_, err := os.Stat(filePath)
+	return !os.IsNotExist(err)
 }
 
 // Load config from file.
@@ -79,7 +81,7 @@ func loadExistingConfig(filePath string) (Config, error) {
 func createDefaultConfig(folderPath string) (Config, error) {
 	// check if directory exists just in case:
 	if !exists(folderPath) {
-		_ = os.Mkdir(folderPath, os.FileMode(0777)) // permissions for linux
+		_ = os.Mkdir(folderPath, os.FileMode(0o777)) // permissions for linux
 	}
 
 	// create the conf
@@ -108,5 +110,5 @@ func createDefaultConfig(folderPath string) (Config, error) {
 		log.Fatal().Err(err).Msg("Couldn't write data to file.")
 	}
 
-	return conf, err
+	return conf, nil
 }
