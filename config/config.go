@@ -5,6 +5,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -30,11 +31,11 @@ func Load() (Config, error) {
 	case "windows", "linux", "darwin":
 		configFolderPath, err := os.UserConfigDir()
 		if err != nil {
-			log.Fatal().Msg("Cannot access user config folder.")
+			return Config{}, fmt.Errorf("cannot access user config folder: %w", err)
 		}
 		projectPath = filepath.Join(configFolderPath, configFolderName)
 	default:
-		log.Fatal().Msgf("unsupported OS: %s", runtime.GOOS)
+		return Config{}, fmt.Errorf("unsupported OS: %s", runtime.GOOS)
 	}
 
 	configFilePath := filepath.Join(projectPath, configFileName)
@@ -43,7 +44,7 @@ func Load() (Config, error) {
 		log.Info().Msg("Config file not found. Creating a default one.")
 		conf, err := createDefaultConfig(projectPath)
 		if err != nil {
-			log.Fatal().Err(err).Msg("Couldn't create config.")
+			return conf, fmt.Errorf("couldn't create config: %w", err)
 		}
 		return conf, nil
 	}
@@ -51,7 +52,7 @@ func Load() (Config, error) {
 	log.Info().Msg("Found existing config file.")
 	conf, err := loadExistingConfig(configFilePath)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Couldn't load config from file.")
+		return conf, fmt.Errorf("couldn't load config from file: %w", err)
 	}
 	return conf, nil
 }
@@ -67,27 +68,30 @@ func loadExistingConfig(filePath string) (Config, error) {
 	conf := Config{}
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Couldn't read file.")
+		return conf, fmt.Errorf("couldn't read file: %w", err)
 	}
 
 	err = json.Unmarshal(data, &conf)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Couldn't load data from file to memory.")
+		return conf, fmt.Errorf("couldn't load data from file to memory: %w", err)
 	}
-	return conf, err
+	return conf, nil
 }
 
 // Create a new config, write to file and load it.
 func createDefaultConfig(folderPath string) (Config, error) {
 	// check if directory exists just in case:
 	if !exists(folderPath) {
-		_ = os.Mkdir(folderPath, os.FileMode(0o777)) // permissions for linux
+		err := os.Mkdir(folderPath, os.ModeDir) // permissions for linux
+		if err != nil {
+			return Config{}, fmt.Errorf("couldn't create folder: %w", err)
+		}
 	}
 
 	// create the conf
 	currentUser, err := user.Current()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Couldn't read user personal data.")
+		return Config{}, fmt.Errorf("couldn't read user personal data: %w", err)
 	}
 	conf := Config{
 		OS:   runtime.GOOS,
@@ -101,13 +105,13 @@ func createDefaultConfig(folderPath string) (Config, error) {
 	fileName := filepath.Join(folderPath, configFileName)
 	file, err := os.Create(fileName)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Couldn't create file.")
+		return conf, fmt.Errorf("couldn't create file: %w", err)
 	}
 
 	defer file.Close()
 	_, err = file.Write(configData)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Couldn't write data to file.")
+		return conf, fmt.Errorf("couldn't write data to file: %w", err)
 	}
 
 	return conf, nil
