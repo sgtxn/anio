@@ -19,10 +19,10 @@ import (
 )
 
 type Config struct {
-	Name          string
-	OS            string
-	InputsConfig  *input.Config
-	AnilistConfig *anilistCfg.Config
+	Name          string             `json:"name"`
+	OS            string             `json:"os"`
+	Inputs        *input.Config      `json:"inputs,omitempty"`
+	AnilistConfig *anilistCfg.Config `json:"anilist,omitempty"`
 
 	lock     sync.Mutex
 	selfPath string
@@ -101,7 +101,7 @@ func createDefaultConfig(cfgFolderPath string) (*Config, error) {
 	log.Info().Msgf("creating default config under %s...", cfgFolderPath)
 
 	if !exists(cfgFolderPath) {
-		err := os.Mkdir(cfgFolderPath, 0o644)
+		err := os.Mkdir(cfgFolderPath, 0o744)
 		if err != nil {
 			return nil, fmt.Errorf("couldn't create folder: %w", err)
 		}

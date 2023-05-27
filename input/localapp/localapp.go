@@ -14,8 +14,8 @@ type CustomPoller interface {
 }
 
 type Config struct {
-	PollingInterval time.Duration
-	MpvConfig       *mpv.Config
+	PollingInterval time.Duration `json:"pollingInterval"`
+	MpvConfig       *mpv.Config   `json:"mpvConfig"`
 }
 
 type LocalProcessPoller struct {

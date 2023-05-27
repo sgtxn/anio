@@ -3,12 +3,12 @@ package config
 import "anio/providers/anilist/consts"
 
 type Config struct {
-	Auth AuthConfig
+	Auth AuthConfig `json:"auth"`
 }
 
 type AuthConfig struct {
-	ClientID     string
-	ClientSecret string
+	ClientID     string `json:"clientId"`
+	ClientSecret string `json:"clientSecret"`
 }
 
 func GetDefaultConfig() *Config {
