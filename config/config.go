@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"sync"
 
+	"anio/input"
 	anilistCfg "anio/providers/anilist/config"
 
 	"github.com/rs/zerolog/log"
@@ -20,6 +21,7 @@ import (
 type Config struct {
 	Name          string
 	OS            string
+	InputsConfig  *input.Config
 	AnilistConfig *anilistCfg.Config
 
 	lock     sync.Mutex

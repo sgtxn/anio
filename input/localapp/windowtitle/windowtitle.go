@@ -10,59 +10,52 @@ import (
 	"strings"
 	"time"
 
+	"anio/input/shared"
+
 	"github.com/rs/zerolog/log"
 )
 
-type InputFileInfo struct {
-	FileName          string
-	SourceApplication string
-}
-
-type LocalApplication struct {
+type PolledAppConfig struct {
 	AppName            string
 	AppExecutable      string
 	FilenameMatchRegex *regexp.Regexp
 }
 
-type WindowTitlePoller struct {
+type Poller struct {
 	interval       time.Duration
-	registeredApps []LocalApplication
-	outputChan     chan<- InputFileInfo
+	registeredApps []PolledAppConfig
+	outputChan     chan<- shared.InputFileInfo
 }
 
-func New(interval time.Duration, outputChan chan<- InputFileInfo) *WindowTitlePoller {
-	return &WindowTitlePoller{
+func New(interval time.Duration, outputChan chan<- shared.InputFileInfo) *Poller {
+	return &Poller{
 		interval:   interval,
 		outputChan: outputChan,
 	}
 }
 
-func (poller *WindowTitlePoller) AddApplication(appName, appExecutable, matchRegexp string) {
-	poller.registeredApps = append(poller.registeredApps, LocalApplication{
-		AppName:            appName,
-		AppExecutable:      appExecutable,
-		FilenameMatchRegex: regexp.MustCompile(matchRegexp),
-	})
+func (poller *Poller) AddApplication(appCfg PolledAppConfig) {
+	poller.registeredApps = append(poller.registeredApps, appCfg)
 }
 
-func (poller *WindowTitlePoller) Start(ctx context.Context) error {
+func (poller *Poller) Start(ctx context.Context) {
 	ticker := time.NewTicker(poller.interval)
 
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
+			return
 		case <-ticker.C:
 			for _, app := range poller.registeredApps {
 				fileName, err := pollApplicationWindows(app.AppExecutable, app.FilenameMatchRegex)
 				if err != nil {
 					log.Error().Err(err).Msg("error polling a windows process info")
 				}
-				if len(fileName) == 0 {
+				if fileName == "" {
 					continue
 				}
 
-				poller.outputChan <- InputFileInfo{FileName: fileName, SourceApplication: app.AppName}
+				poller.outputChan <- shared.InputFileInfo{FileName: fileName, SourceApplication: app.AppName}
 			}
 		}
 	}
@@ -91,7 +84,7 @@ func pollApplicationWindows(appName string, matcher *regexp.Regexp) (string, err
 		fileName := record[len(record)-1]
 		cleanedUpFilename := matcher.FindString(fileName)
 		return cleanedUpFilename, nil
-	} else {
-		return "", fmt.Errorf("got an empty record")
 	}
+
+	return "", fmt.Errorf("got an empty record")
 }
