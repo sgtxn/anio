@@ -11,8 +11,12 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 
 	"anio/input"
+	"anio/input/localapp"
+	"anio/input/localapp/mpv"
+	"anio/pkg/duration"
 	anilistCfg "anio/providers/anilist/config"
 
 	"github.com/rs/zerolog/log"
@@ -115,6 +119,12 @@ func createDefaultConfig(cfgFolderPath string) (*Config, error) {
 		OS:            runtime.GOOS,
 		Name:          currentUser.Username,
 		AnilistConfig: anilistCfg.GetDefaultConfig(),
+		Inputs: &input.Config{
+			LocalPollers: &localapp.Config{
+				PollingInterval: duration.Duration{Duration: time.Second * 3},
+				MpvConfig:       &mpv.Config{},
+			},
+		},
 	}
 
 	cfg.selfPath = filepath.Join(cfgFolderPath, configFileName)

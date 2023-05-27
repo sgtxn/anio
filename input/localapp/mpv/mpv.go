@@ -15,6 +15,6 @@ func (cfg *Config) GetProcessPollerConfig() windowtitle.PolledAppConfig {
 	return windowtitle.PolledAppConfig{
 		AppName:            "mpv",
 		AppExecutable:      "mpv.exe",
-		FilenameMatchRegex: regexp.MustCompile(`(.+)\s - mpv`),
+		FilenameMatchRegex: regexp.MustCompile(`(.+) - mpv`),
 	}
 }

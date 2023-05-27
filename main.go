@@ -1,18 +1,14 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"time"
 
 	"anio/config"
-	"anio/providers/anilist"
-	anilistConsts "anio/providers/anilist/consts"
+	"anio/input"
+	"anio/input/shared"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -31,53 +27,61 @@ func main() {
 
 	log.Info().Msg("config loaded successfully")
 
-	authCtx, cancel := context.WithTimeout(ctx, anilistConsts.RequestTimeout)
-	defer cancel()
-	auth, err := anilist.Authenticate(authCtx, &cfg.AnilistConfig.Auth)
-	if err != nil {
-		log.Fatal().Err(err).Msgf("anilist authentication failure: %s", err)
+	outputChan := make(chan shared.InputFileInfo)
+	inputBlock := input.New(cfg.Inputs, outputChan)
+	inputBlock.Start(ctx)
+
+	for data := range outputChan {
+		fmt.Println(data)
 	}
 
-	sampleQuery := `query ($id: Int) {
-		Media (id: $id, type: ANIME) {
-		  id
-		  title {
-			romaji
-			english
-			native
-		  }
-		}
-	  }`
+	// authCtx, cancel := context.WithTimeout(ctx, anilistConsts.RequestTimeout)
+	// defer cancel()
+	// auth, err := anilist.Authenticate(authCtx, &cfg.AnilistConfig.Auth)
+	// if err != nil {
+	// 	log.Fatal().Err(err).Msgf("anilist authentication failure: %s", err)
+	// }
 
-	sampleVariables := map[string]interface{}{"id": 15125}
-	anilistApiURL := "https://graphql.anilist.co"
+	// sampleQuery := `query ($id: Int) {
+	// 	Media (id: $id, type: ANIME) {
+	// 	  id
+	// 	  title {
+	// 		romaji
+	// 		english
+	// 		native
+	// 	  }
+	// 	}
+	//   }`
 
-	requestPayload := struct {
-		Query     string                 `json:"query"`
-		Variables map[string]interface{} `json:"variables"`
-	}{
-		Query:     sampleQuery,
-		Variables: sampleVariables,
-	}
+	// sampleVariables := map[string]interface{}{"id": 15125}
+	// anilistApiURL := "https://graphql.anilist.co"
 
-	reqBody, err := json.Marshal(requestPayload)
-	if err != nil {
-		log.Fatal().Err(err).Msgf("couldn't marshal the request payload to a json: %s", err)
-	}
+	// requestPayload := struct {
+	// 	Query     string                 `json:"query"`
+	// 	Variables map[string]interface{} `json:"variables"`
+	// }{
+	// 	Query:     sampleQuery,
+	// 	Variables: sampleVariables,
+	// }
 
-	fmt.Println(string(reqBody))
+	// reqBody, err := json.Marshal(requestPayload)
+	// if err != nil {
+	// 	log.Fatal().Err(err).Msgf("couldn't marshal the request payload to a json: %s", err)
+	// }
 
-	resp, err := auth.Client.Post(anilistApiURL, "application/json", bytes.NewReader(reqBody))
-	if err != nil {
-		log.Fatal().Err(err).Msgf("anilist sample query bad response: %s", err)
-	}
-	defer resp.Body.Close()
+	// fmt.Println(string(reqBody))
 
-	respBody, _ := io.ReadAll(resp.Body)
+	// resp, err := auth.Client.Post(anilistApiURL, "application/json", bytes.NewReader(reqBody))
+	// if err != nil {
+	// 	log.Fatal().Err(err).Msgf("anilist sample query bad response: %s", err)
+	// }
+	// defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		log.Fatal().Err(err).Msgf("anilist sample query expected a 200 response, but got %d with body \n%s", resp.StatusCode, respBody)
-	}
+	// respBody, _ := io.ReadAll(resp.Body)
 
-	log.Info().Msgf("got an anilist response with body: %s", respBody)
+	// if resp.StatusCode != http.StatusOK {
+	// 	log.Fatal().Err(err).Msgf("anilist sample query expected a 200 response, but got %d with body \n%s", resp.StatusCode, respBody)
+	// }
+
+	// log.Info().Msgf("got an anilist response with body: %s", respBody)
 }

@@ -39,11 +39,14 @@ func (poller *Poller) AddApplication(appCfg PolledAppConfig) {
 }
 
 func (poller *Poller) Start(ctx context.Context) {
+	log.Info().Msgf("starting window title poller with an interval of %s", poller.interval)
+
 	ticker := time.NewTicker(poller.interval)
 
 	for {
 		select {
 		case <-ctx.Done():
+			log.Warn().Msgf("closing window title poller due to an abort")
 			return
 		case <-ticker.C:
 			for _, app := range poller.registeredApps {
@@ -82,8 +85,11 @@ func pollApplicationWindows(appName string, matcher *regexp.Regexp) (string, err
 
 	if len(record) > 0 {
 		fileName := record[len(record)-1]
-		cleanedUpFilename := matcher.FindString(fileName)
-		return cleanedUpFilename, nil
+		cleanedUpFilenameMatches := matcher.FindStringSubmatch(fileName)
+		if len(cleanedUpFilenameMatches) > 1 {
+			return cleanedUpFilenameMatches[1], nil
+		}
+		return "", nil
 	}
 
 	return "", fmt.Errorf("got an empty record")

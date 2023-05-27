@@ -2,11 +2,11 @@ package localapp
 
 import (
 	"context"
-	"time"
 
 	"anio/input/localapp/mpv"
 	"anio/input/localapp/windowtitle"
 	"anio/input/shared"
+	"anio/pkg/duration"
 )
 
 type CustomPoller interface {
@@ -14,8 +14,8 @@ type CustomPoller interface {
 }
 
 type Config struct {
-	PollingInterval time.Duration `json:"pollingInterval"`
-	MpvConfig       *mpv.Config   `json:"mpvConfig"`
+	PollingInterval duration.Duration `json:"pollingInterval"`
+	MpvConfig       *mpv.Config       `json:"mpvConfig"`
 }
 
 type LocalProcessPoller struct {
@@ -24,7 +24,7 @@ type LocalProcessPoller struct {
 }
 
 func New(cfg *Config, outputChan chan<- shared.InputFileInfo) *LocalProcessPoller {
-	windowTitlePoller := windowtitle.New(cfg.PollingInterval, outputChan)
+	windowTitlePoller := windowtitle.New(cfg.PollingInterval.Duration, outputChan)
 
 	if cfg.MpvConfig != nil && cfg.MpvConfig.Enabled {
 		windowTitlePoller.AddApplication(cfg.MpvConfig.GetProcessPollerConfig())
