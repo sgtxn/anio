@@ -1,10 +1,11 @@
 module anio
 
-go 1.19
+go 1.20
+
+require github.com/rs/zerolog v1.29.1
 
 require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
-	github.com/rs/zerolog v1.29.0
 	golang.org/x/oauth2 v0.7.0
 )
 
