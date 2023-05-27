@@ -7,30 +7,35 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"time"
 
 	"anio/config"
 	"anio/providers/anilist"
 	anilistConsts "anio/providers/anilist/consts"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.DateTime})
+
 	ctx := context.Background()
 
-	log.Info().Msg("Loading config")
+	log.Info().Msg("loading config...")
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Couldn't load config.")
+		log.Fatal().Err(err).Msg("couldn't load config")
 	}
 
-	log.Info().Msgf("Hello, %s. This line demonstrates that config was successfully loaded.", cfg.Name)
+	log.Info().Msg("config loaded successfully")
 
-	authCtx, cancel := context.WithTimeout(ctx, anilistConsts.AnilistRequestTimeout)
+	authCtx, cancel := context.WithTimeout(ctx, anilistConsts.RequestTimeout)
 	defer cancel()
 	auth, err := anilist.Authenticate(authCtx, &cfg.AnilistConfig.Auth)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("Anilist authentication failure: %s", err)
+		log.Fatal().Err(err).Msgf("anilist authentication failure: %s", err)
 	}
 
 	sampleQuery := `query ($id: Int) {
@@ -57,22 +62,22 @@ func main() {
 
 	reqBody, err := json.Marshal(requestPayload)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("Couldn't marshal the request payload to a json: %s", err)
+		log.Fatal().Err(err).Msgf("couldn't marshal the request payload to a json: %s", err)
 	}
 
 	fmt.Println(string(reqBody))
 
 	resp, err := auth.Client.Post(anilistApiURL, "application/json", bytes.NewReader(reqBody))
 	if err != nil {
-		log.Fatal().Err(err).Msgf("Anilist sample query bad response: %s", err)
+		log.Fatal().Err(err).Msgf("anilist sample query bad response: %s", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatal().Err(err).Msgf("Anilist sample query expected a 200 response, but got %d with body \n%s", resp.StatusCode, respBody)
+		log.Fatal().Err(err).Msgf("anilist sample query expected a 200 response, but got %d with body \n%s", resp.StatusCode, respBody)
 	}
 
-	log.Info().Msgf("Got an Anilist response with this body: %s", respBody)
+	log.Info().Msgf("got an anilist response with body: %s", respBody)
 }

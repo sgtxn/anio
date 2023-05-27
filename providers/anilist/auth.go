@@ -19,7 +19,7 @@ type Auth struct {
 }
 
 func Authenticate(ctx context.Context, cfg *config.AuthConfig) (*Auth, error) {
-	conf := &oauth2.Config{
+	oauthCfg := &oauth2.Config{
 		ClientID:     cfg.ClientID,
 		ClientSecret: cfg.ClientSecret,
 		RedirectURL:  "https://anilist.co/api/v2/oauth/pin",
@@ -29,8 +29,8 @@ func Authenticate(ctx context.Context, cfg *config.AuthConfig) (*Auth, error) {
 		},
 	}
 
-	url := conf.AuthCodeURL("auth_code")
-	log.Info().Msg("Launching the browser to authenticate in anilist...")
+	url := oauthCfg.AuthCodeURL("auth_code")
+	log.Info().Msg("launching the browser to authenticate in anilist...")
 
 	if err := browser.OpenURL(url); err != nil {
 		return nil, fmt.Errorf("failed to open the auth url in browser: %w", err)
@@ -44,12 +44,12 @@ func Authenticate(ctx context.Context, cfg *config.AuthConfig) (*Auth, error) {
 		return nil, fmt.Errorf("failed to read the authorization code: %w", err)
 	}
 
-	token, err := conf.Exchange(ctx, code)
+	token, err := oauthCfg.Exchange(ctx, code)
 	if err != nil {
 		return nil, fmt.Errorf("failed to exchange the authorization code for an access token: %w", err)
 	}
 
-	client := conf.Client(ctx, token)
+	client := oauthCfg.Client(ctx, token)
 
 	return &Auth{Client: client}, nil
 }
