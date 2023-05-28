@@ -13,20 +13,17 @@ import (
 	"sync"
 	"time"
 
-	"anio/input"
-	"anio/input/localapp"
-	"anio/input/localapp/mpv"
 	"anio/pkg/duration"
-	anilistCfg "anio/providers/anilist/config"
+	"anio/providers/anilist/consts"
 
 	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
-	Name          string             `json:"name"`
-	OS            string             `json:"os"`
-	Inputs        *input.Config      `json:"inputs,omitempty"`
-	AnilistConfig *anilistCfg.Config `json:"anilist,omitempty"`
+	Name          string         `json:"name"`
+	OS            string         `json:"os"`
+	Inputs        *InputsConfig  `json:"inputs,omitempty"`
+	AnilistConfig *AnilistConfig `json:"anilist,omitempty"`
 
 	lock     sync.Mutex
 	selfPath string
@@ -115,26 +112,16 @@ func createDefaultConfig(cfgFolderPath string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("couldn't read user personal data: %w", err)
 	}
-	cfg := Config{
-		OS:            runtime.GOOS,
-		Name:          currentUser.Username,
-		AnilistConfig: anilistCfg.GetDefaultConfig(),
-		Inputs: &input.Config{
-			LocalPollers: &localapp.Config{
-				PollingInterval: duration.Duration{Duration: time.Second * 3},
-				MpvConfig:       &mpv.Config{},
-			},
-		},
-	}
 
+	cfg := getDefaultConfig(runtime.GOOS, currentUser.Username)
 	cfg.selfPath = filepath.Join(cfgFolderPath, configFileName)
 
-	err = writeConfigToFile(&cfg)
+	err = writeConfigToFile(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't write config file: %w", err)
 	}
 
-	return &cfg, nil
+	return cfg, nil
 }
 
 func writeConfigToFile(cfg *Config) error {
@@ -161,4 +148,26 @@ func writeConfigToFile(cfg *Config) error {
 func exists(cfgFilePath string) bool {
 	_, err := os.Stat(cfgFilePath)
 	return !os.IsNotExist(err)
+}
+
+func getDefaultConfig(os, username string) *Config {
+	return &Config{
+		OS:   os,
+		Name: username,
+		Inputs: &InputsConfig{
+			LocalPollers: &LocalAppConfig{
+				PollingInterval: duration.Duration{Duration: time.Second * 5},
+				MpvConfig: &MpvConfig{
+					Enabled:       false,
+					UseJSONRPCAPI: false,
+				},
+			},
+		},
+		AnilistConfig: &AnilistConfig{
+			Auth: AnilistAuthConfig{
+				ClientID:     consts.ClientID,
+				ClientSecret: consts.ClientSecret,
+			},
+		},
+	}
 }

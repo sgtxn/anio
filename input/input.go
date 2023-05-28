@@ -3,23 +3,18 @@ package input
 import (
 	"context"
 
+	"anio/config"
 	"anio/input/localapp"
 	"anio/input/shared"
 
 	"github.com/rs/zerolog/log"
 )
 
-type Config struct {
-	WebListener  any              `json:"webListener,omitempty"`
-	WebPollers   any              `json:"webPollers,omitempty"`
-	LocalPollers *localapp.Config `json:"localPollers,omitempty"`
-}
-
 type Input struct {
 	LocalAppPoller localapp.LocalProcessPoller
 }
 
-func New(cfg *Config, outputChan chan<- shared.InputFileInfo) *Input {
+func New(cfg *config.InputsConfig, outputChan chan<- shared.InputFileInfo) *Input {
 	return &Input{
 		LocalAppPoller: *localapp.New(cfg.LocalPollers, outputChan),
 	}

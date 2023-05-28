@@ -10,20 +10,15 @@ import (
 	"strings"
 	"time"
 
+	"anio/config"
 	"anio/input/shared"
 
 	"github.com/rs/zerolog/log"
 )
 
-type PolledAppConfig struct {
-	AppName            string
-	AppExecutable      string
-	FilenameMatchRegex *regexp.Regexp
-}
-
 type Poller struct {
 	interval       time.Duration
-	registeredApps []PolledAppConfig
+	registeredApps []config.PolledAppConfig
 	outputChan     chan<- shared.InputFileInfo
 }
 
@@ -34,7 +29,7 @@ func New(interval time.Duration, outputChan chan<- shared.InputFileInfo) *Poller
 	}
 }
 
-func (poller *Poller) AddApplication(appCfg PolledAppConfig) {
+func (poller *Poller) AddApplication(appCfg config.PolledAppConfig) {
 	poller.registeredApps = append(poller.registeredApps, appCfg)
 }
 
