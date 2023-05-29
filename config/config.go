@@ -125,7 +125,10 @@ func createDefaultConfig(cfgFolderPath string) (*Config, error) {
 }
 
 func writeConfigToFile(cfg *Config) error {
-	cfgBytes, _ := json.MarshalIndent(cfg, "", "  ")
+	cfgBytes, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error marshalling config: %w", err)
+	}
 
 	file, err := os.Create(cfg.selfPath)
 	if err != nil {
@@ -156,7 +159,7 @@ func getDefaultConfig(userOS, username string) *Config {
 		Name: username,
 		Inputs: &InputsConfig{
 			LocalPollers: &LocalAppConfig{
-				PollingInterval: duration.Duration{Duration: time.Second * 5},
+				PollingInterval: duration.Duration{Duration: time.Second * 5}, //nolint:gomnd // it's fine to hardcode the defaults
 				MpvConfig: &MpvConfig{
 					Enabled:       false,
 					UseJSONRPCAPI: false,

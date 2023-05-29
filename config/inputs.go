@@ -7,10 +7,15 @@ import (
 )
 
 type InputsConfig struct {
-	WebListener  any             `json:"webListener,omitempty"`
-	WebPollers   any             `json:"webPollers,omitempty"`
-	LocalPollers *LocalAppConfig `json:"localPollers,omitempty"`
+	WebListener  *WebListenerConfig `json:"webListener,omitempty"`
+	WebPollers   *WebPollersConfig  `json:"webPollers,omitempty"`
+	LocalPollers *LocalAppConfig    `json:"localPollers,omitempty"`
 }
+
+type (
+	WebListenerConfig struct{}
+	WebPollersConfig  struct{}
+)
 
 type LocalAppConfig struct {
 	PollingInterval duration.Duration `json:"pollingInterval"`

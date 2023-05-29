@@ -36,7 +36,7 @@ func Authenticate(ctx context.Context, cfg *config.AnilistAuthConfig) (*Auth, er
 		return nil, fmt.Errorf("failed to open the auth url in browser: %w", err)
 	}
 
-	fmt.Println("Enter the authorization code:")
+	log.Info().Msg("Enter the authorization code:")
 
 	var code string
 	in := bufio.NewReader(os.Stdin)

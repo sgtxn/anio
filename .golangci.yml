@@ -20,7 +20,11 @@ output:
   sort-results: true
 
 issues:
-  new-from-rev: origin/master
+  exclude-rules:
+    - linters:
+        - revive
+      text: "^comment-spacings: no space between comment delimiter and comment text"
+      source: "//(nolint:)"
 
 linters-settings:
   cyclop:
