@@ -19,6 +19,9 @@ output:
   unique-by-line: true
   sort-results: true
 
+issues:
+  new-from-rev: origin/master
+
 linters-settings:
   cyclop:
     max-complexity: 20 # Default: 10

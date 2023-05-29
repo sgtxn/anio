@@ -150,9 +150,9 @@ func exists(cfgFilePath string) bool {
 	return !os.IsNotExist(err)
 }
 
-func getDefaultConfig(os, username string) *Config {
+func getDefaultConfig(userOS, username string) *Config {
 	return &Config{
-		OS:   os,
+		OS:   userOS,
 		Name: username,
 		Inputs: &InputsConfig{
 			LocalPollers: &LocalAppConfig{

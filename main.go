@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"time"
 
@@ -32,7 +31,7 @@ func main() {
 	inputBlock.Start(ctx)
 
 	for data := range outputChan {
-		fmt.Println(data)
+		log.Info().Any("data", data).Send()
 	}
 
 	// authCtx, cancel := context.WithTimeout(ctx, anilistConsts.RequestTimeout)

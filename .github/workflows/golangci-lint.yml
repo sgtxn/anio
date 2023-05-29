@@ -26,5 +26,5 @@ jobs:
         with:
           version: v1.52.2
           # only show new linting issues
-          # args: --new-from-rev=origin/master
-          only-new-issues: true
+          args: --new-from-rev=origin/master
+          # only-new-issues: true

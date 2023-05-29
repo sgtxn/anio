@@ -10,20 +10,21 @@ type Duration struct {
 	time.Duration
 }
 
-func (d *Duration) UnmarshalJSON(b []byte) (err error) {
+func (d *Duration) UnmarshalJSON(b []byte) error {
+	var err error
 	if b[0] == '"' {
 		sd := string(b[1 : len(b)-1])
 		d.Duration, err = time.ParseDuration(sd)
-		return
+		return err
 	}
 
 	var id int64
 	id, err = json.Number(string(b)).Int64()
 	d.Duration = time.Duration(id)
 
-	return
+	return err
 }
 
-func (d Duration) MarshalJSON() (b []byte, err error) {
-	return []byte(fmt.Sprintf(`"%s"`, d.String())), nil
+func (d Duration) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`%q`, d.String())), nil
 }
