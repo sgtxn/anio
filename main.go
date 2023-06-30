@@ -13,13 +13,22 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func main() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.DateTime})
+const (
+	projectFolderName = "anio"
+)
 
+func main() {
 	ctx := context.Background()
 
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.DateTime})
+
 	log.Info().Msg("loading config...")
-	cfg, err := config.Load()
+	cfgFilePath, err := config.GetConfigFilePath(projectFolderName)
+	if err != nil {
+		log.Fatal().Err(err).Msg("couldn't get config file path")
+	}
+
+	cfg, err := config.Load(cfgFilePath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("couldn't load config")
 	}

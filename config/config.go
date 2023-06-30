@@ -30,9 +30,21 @@ type Config struct {
 }
 
 const (
-	configFileName   = "config.json"
-	configFolderName = "anio"
+	configFileName = "config.json"
 )
+
+func GetConfigFilePath(projectFolderName string) (string, error) {
+	switch runtime.GOOS {
+	case "windows", "linux", "darwin":
+		configFolderPath, err := os.UserConfigDir()
+		if err != nil {
+			return "", fmt.Errorf("cannot access user config folder: %w", err)
+		}
+		return filepath.Join(configFolderPath, projectFolderName, configFileName), nil
+	default:
+		return "", fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
+}
 
 // SaveConfig updates the locally saved config.
 func (cfg *Config) SaveConfig() error {
@@ -47,35 +59,23 @@ func (cfg *Config) SaveConfig() error {
 }
 
 // Load checks user's OS, then reads config data from file or creates a new default config.
-func Load() (*Config, error) {
-	var projectPath string
-	switch runtime.GOOS {
-	case "windows", "linux", "darwin":
-		configFolderPath, err := os.UserConfigDir()
-		if err != nil {
-			return nil, fmt.Errorf("cannot access user config folder: %w", err)
-		}
-		projectPath = filepath.Join(configFolderPath, configFolderName)
-	default:
-		return nil, fmt.Errorf("unsupported OS: %s", runtime.GOOS)
-	}
-
-	configFilePath := filepath.Join(projectPath, configFileName)
-
+func Load(configFilePath string) (*Config, error) {
 	if !exists(configFilePath) {
 		log.Info().Msg("config file not found. Creating a default one.")
-		conf, err := createDefaultConfig(projectPath)
+		conf, err := createDefaultConfig(configFilePath)
 		if err != nil {
 			return nil, fmt.Errorf("couldn't create config: %w", err)
 		}
+
 		return conf, nil
 	}
 
-	log.Info().Msg("found existing config file.")
+	log.Info().Msg("found existing config file")
 	conf, err := loadExistingConfig(configFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't load config from file: %w", err)
 	}
+
 	return conf, nil
 }
 
@@ -98,7 +98,8 @@ func loadExistingConfig(cfgFilePath string) (*Config, error) {
 	return &conf, nil
 }
 
-func createDefaultConfig(cfgFolderPath string) (*Config, error) {
+func createDefaultConfig(cfgFilePath string) (*Config, error) {
+	cfgFolderPath := filepath.Dir(cfgFilePath)
 	log.Info().Msgf("creating default config under %s...", cfgFolderPath)
 
 	if !exists(cfgFolderPath) {
