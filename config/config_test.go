@@ -49,7 +49,7 @@ func TestCase_EverythingGood(t *testing.T) {
 	assert.NoError(t, err)
 	testConfigContent(t, cfg_loaded)
 
-	os.Remove(configFilePath)
+	os.RemoveAll(testDirectory)
 }
 
 // TestCase: Function is provided with an inaccesible path.
@@ -63,12 +63,16 @@ func TestCase_WrongFolder_ExpectedError(t *testing.T) {
 // TestCase: Function tries to load cfg from a file that is not Json at all.
 func TestCase_UnreadableJson_ExpectedError(t *testing.T) {
 	data := []byte("test")
-	file, _ := os.Create(configFilePath)
+	_ = os.Mkdir(testDirectory, 0o755)
+	file, err := os.Create(configFilePath)
+	if err != nil {
+		t.Fatal(err)
+	}
 	file.Write(data)
 	file.Close()
 
-	_, err := Load(configFilePath)
+	_, err = Load(configFilePath)
 	assert.Error(t, err)
 
-	os.Remove(configFilePath)
+	os.RemoveAll(testDirectory)
 }
