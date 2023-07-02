@@ -33,9 +33,9 @@ func main() {
 		log.Fatal().Err(err).Msg("couldn't load config")
 	}
 
-	zerolog.SetGlobalLevel(cfg.LogLevel)
-
 	log.Info().Msg("config loaded successfully")
+
+	zerolog.SetGlobalLevel(cfg.LogLevel)
 
 	outputChan := make(chan shared.InputFileInfo)
 	inputBlock := input.New(cfg.Inputs, outputChan)
