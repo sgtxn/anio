@@ -13,6 +13,8 @@ import (
 	"sync"
 	"time"
 
+	"anio/config/inputs"
+	"anio/config/outputs"
 	"anio/pkg/duration"
 	"anio/providers/anilist/consts"
 
@@ -20,10 +22,9 @@ import (
 )
 
 type Config struct {
-	Name          string         `json:"name"`
-	OS            string         `json:"os"`
-	Inputs        *InputsConfig  `json:"inputs,omitempty"`
-	AnilistConfig *AnilistConfig `json:"anilist,omitempty"`
+	Name    string          `json:"name"`
+	Inputs  *inputs.Config  `json:"inputs,omitempty"`
+	Outputs *outputs.Config `json:"outputs,omitempty"`
 
 	lock     sync.Mutex
 	selfPath string
@@ -114,7 +115,7 @@ func createDefaultConfig(cfgFilePath string) (*Config, error) {
 		return nil, fmt.Errorf("couldn't read user personal data: %w", err)
 	}
 
-	cfg := getDefaultConfig(runtime.GOOS, currentUser.Username)
+	cfg := getDefaultConfig(currentUser.Username)
 	cfg.selfPath = filepath.Join(cfgFolderPath, configFileName)
 
 	err = writeConfigToFile(cfg)
@@ -154,23 +155,24 @@ func exists(cfgFilePath string) bool {
 	return !os.IsNotExist(err)
 }
 
-func getDefaultConfig(userOS, username string) *Config {
+func getDefaultConfig(username string) *Config {
 	return &Config{
-		OS:   userOS,
 		Name: username,
-		Inputs: &InputsConfig{
-			LocalPollers: &LocalAppConfig{
+		Inputs: &inputs.Config{
+			LocalPollers: &inputs.LocalAppConfig{
 				PollingInterval: duration.Duration{Duration: time.Second * 5}, //nolint:gomnd // it's fine to hardcode the defaults
-				MpvConfig: &MpvConfig{
+				MpvConfig: &inputs.MpvConfig{
 					Enabled:       false,
 					UseJSONRPCAPI: false,
 				},
 			},
 		},
-		AnilistConfig: &AnilistConfig{
-			Auth: AnilistAuthConfig{
-				ClientID:     consts.ClientID,
-				ClientSecret: consts.ClientSecret,
+		Outputs: &outputs.Config{
+			Anilist: &outputs.AnilistConfig{
+				Auth: outputs.AnilistAuthConfig{
+					ClientID:     consts.ClientID,
+					ClientSecret: consts.ClientSecret,
+				},
 			},
 		},
 	}

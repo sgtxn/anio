@@ -1,4 +1,4 @@
-package config
+package outputs
 
 type AnilistConfig struct {
 	Auth AnilistAuthConfig `json:"auth"`

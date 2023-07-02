@@ -28,7 +28,6 @@ func TestExists(t *testing.T) {
 // [testConfigContent]: Helper Function that checks the conf.
 func testConfigContent(t *testing.T, conf *Config) {
 	assert.NotNil(t, conf)
-	assert.Contains(t, supportedOS, conf.OS)
 	assert.NotEmpty(t, conf.Name)
 	assert.True(t, exists(configFilePath)) // uses a global var
 }

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"anio/config"
+	"anio/config/inputs"
 	"anio/input/shared"
 
 	"github.com/BurntSushi/xgbutil"
@@ -21,7 +21,7 @@ import (
 
 type Poller struct {
 	interval       time.Duration
-	registeredApps []config.PolledAppConfig
+	registeredApps []inputs.PolledAppConfig
 	outputChan     chan<- shared.InputFileInfo
 }
 
@@ -32,7 +32,7 @@ func New(interval time.Duration, outputChan chan<- shared.InputFileInfo) *Poller
 	}
 }
 
-func (poller *Poller) AddApplication(appCfg config.PolledAppConfig) {
+func (poller *Poller) AddApplication(appCfg inputs.PolledAppConfig) {
 	poller.registeredApps = append(poller.registeredApps, appCfg)
 }
 
@@ -53,12 +53,12 @@ func (poller *Poller) Start(ctx context.Context) {
 
 				switch runtime.GOOS {
 				case "windows":
-					fileName, err = pollApplicationWindows(app.AppExecutableWindows, app.FilenameMatchRegex)
+					fileName, err = pollApplicationWindows(app.AppExecutable, app.FilenameMatchRegex)
 					if err != nil {
 						log.Error().Err(err).Msg("error polling a windows process info")
 					}
 				case "linux":
-					fileName, err = pollApplicationLinux(app.AppExecutableLinux, app.FilenameMatchRegex)
+					fileName, err = pollApplicationLinux(app.AppExecutable, app.FilenameMatchRegex)
 					if err != nil {
 						log.Error().Err(err).Msg("error polling a linux process info")
 					}

@@ -1,4 +1,4 @@
-package config
+package inputs
 
 import (
 	"regexp"
@@ -6,10 +6,10 @@ import (
 	"anio/pkg/duration"
 )
 
-type InputsConfig struct {
+type Config struct {
 	WebListener  *WebListenerConfig `json:"webListener,omitempty"`
 	WebPollers   *WebPollersConfig  `json:"webPollers,omitempty"`
-	LocalPollers *LocalAppConfig    `json:"localPollers,omitempty"`
+	LocalPollers *LocalAppConfig    `json:"local,omitempty"`
 }
 
 type (
@@ -23,8 +23,7 @@ type LocalAppConfig struct {
 }
 
 type PolledAppConfig struct {
-	AppName              string
-	AppExecutableWindows string
-	AppExecutableLinux   string
-	FilenameMatchRegex   *regexp.Regexp
+	AppName            string
+	AppExecutable      string
+	FilenameMatchRegex *regexp.Regexp
 }

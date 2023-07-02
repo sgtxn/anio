@@ -3,7 +3,7 @@ package localapp
 import (
 	"context"
 
-	"anio/config"
+	"anio/config/inputs"
 	"anio/input/localapp/windowtitle"
 	"anio/input/shared"
 )
@@ -17,7 +17,7 @@ type Poller struct {
 	CustomPollers     []CustomPoller
 }
 
-func New(cfg *config.LocalAppConfig, outputChan chan<- shared.InputFileInfo) *Poller {
+func New(cfg *inputs.LocalAppConfig, outputChan chan<- shared.InputFileInfo) *Poller {
 	windowTitlePoller := windowtitle.New(cfg.PollingInterval.Duration, outputChan)
 
 	if cfg.MpvConfig != nil && cfg.MpvConfig.Enabled {

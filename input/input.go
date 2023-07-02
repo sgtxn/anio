@@ -3,7 +3,7 @@ package input
 import (
 	"context"
 
-	"anio/config"
+	"anio/config/inputs"
 	"anio/input/localapp"
 	"anio/input/shared"
 
@@ -14,7 +14,7 @@ type Input struct {
 	LocalAppPoller *localapp.Poller
 }
 
-func New(cfg *config.InputsConfig, outputChan chan<- shared.InputFileInfo) *Input {
+func New(cfg *inputs.Config, outputChan chan<- shared.InputFileInfo) *Input {
 	var input Input
 
 	if cfg == nil {

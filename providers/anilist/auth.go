@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"anio/config"
+	"anio/config/outputs"
 
 	"github.com/pkg/browser"
 	"github.com/rs/zerolog/log"
@@ -18,7 +18,7 @@ type Auth struct {
 	Client *http.Client
 }
 
-func Authenticate(ctx context.Context, cfg *config.AnilistAuthConfig) (*Auth, error) {
+func Authenticate(ctx context.Context, cfg *outputs.AnilistAuthConfig) (*Auth, error) {
 	oauthCfg := &oauth2.Config{
 		ClientID:     cfg.ClientID,
 		ClientSecret: cfg.ClientSecret,
