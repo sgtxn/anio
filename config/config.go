@@ -79,6 +79,14 @@ func Load(configFilePath string) (*Config, error) {
 		return nil, fmt.Errorf("couldn't load config from file: %w", err)
 	}
 
+	if conf.Inputs == nil {
+		return nil, fmt.Errorf("no inputs defined, the application has nothing to do")
+	}
+
+	if conf.Outputs == nil {
+		return nil, fmt.Errorf("no outputs defined, the application has nothing to do")
+	}
+
 	return conf, nil
 }
 

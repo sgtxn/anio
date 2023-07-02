@@ -17,10 +17,6 @@ type Input struct {
 func New(cfg *inputs.Config, outputChan chan<- shared.InputFileInfo) *Input {
 	var input Input
 
-	if cfg == nil {
-		return &input
-	}
-
 	if cfg.LocalPollers != nil {
 		input.LocalAppPoller = localapp.New(cfg.LocalPollers, outputChan)
 	}
