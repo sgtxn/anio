@@ -29,7 +29,7 @@ func New(cfg *inputs.Config, outputChan chan<- shared.InputFileInfo) *Input {
 }
 
 func (input *Input) Start(ctx context.Context) {
-	log.Info().Msg("initializing inputs...")
+	log.Info().Msg("listening to the inputs...")
 
 	if input.LocalAppPoller != nil {
 		input.LocalAppPoller.Start(ctx)

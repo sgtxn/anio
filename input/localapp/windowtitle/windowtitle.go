@@ -33,6 +33,8 @@ func New(interval time.Duration, outputChan chan<- shared.InputFileInfo) *Poller
 }
 
 func (poller *Poller) AddApplication(appCfg inputs.PolledAppConfig) {
+	log.Info().Msgf("registered %s input", appCfg.AppName)
+
 	poller.registeredApps = append(poller.registeredApps, appCfg)
 }
 
@@ -68,6 +70,8 @@ func (poller *Poller) Start(ctx context.Context) {
 					continue
 				}
 
+				log.Debug().Str("filename", fileName).Str("app", app.AppName).Msg("got an event")
+
 				poller.outputChan <- shared.InputFileInfo{FileName: fileName, SourceApplication: app.AppName}
 			}
 		}
@@ -94,11 +98,14 @@ func pollApplicationWindows(appName string, matcher *regexp.Regexp) (string, err
 	}
 
 	if len(record) > 0 {
-		fileName := record[len(record)-1]
-		cleanedUpFilenameMatches := matcher.FindStringSubmatch(fileName)
+		windowName := record[len(record)-1]
+		cleanedUpFilenameMatches := matcher.FindStringSubmatch(windowName)
 		if len(cleanedUpFilenameMatches) > 1 {
 			return cleanedUpFilenameMatches[1], nil
 		}
+
+		log.Debug().Str("filename", windowName).Str("app", appName).Msg("window name didn't match regex")
+
 		return "", nil
 	}
 
@@ -127,6 +134,8 @@ func pollApplicationLinux(appName string, matcher *regexp.Regexp) (string, error
 			if len(cleanedUpFilenameMatches) > 1 {
 				return cleanedUpFilenameMatches[1], nil
 			}
+
+			log.Debug().Str("filename", windowName).Str("app", appName).Msg("window name didn't match regex")
 		}
 	}
 

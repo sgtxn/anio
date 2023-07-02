@@ -18,13 +18,15 @@ import (
 	"anio/pkg/duration"
 	"anio/providers/anilist/consts"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
-	Name    string          `json:"name"`
-	Inputs  *inputs.Config  `json:"inputs,omitempty"`
-	Outputs *outputs.Config `json:"outputs,omitempty"`
+	LogLevel zerolog.Level   `json:"logLevel"`
+	Name     string          `json:"name"`
+	Inputs   *inputs.Config  `json:"inputs,omitempty"`
+	Outputs  *outputs.Config `json:"outputs,omitempty"`
 
 	lock     sync.Mutex
 	selfPath string
@@ -157,7 +159,8 @@ func exists(cfgFilePath string) bool {
 
 func getDefaultConfig(username string) *Config {
 	return &Config{
-		Name: username,
+		LogLevel: zerolog.InfoLevel,
+		Name:     username,
 		Inputs: &inputs.Config{
 			LocalPollers: &inputs.LocalAppConfig{
 				PollingInterval: duration.Duration{Duration: time.Second * 5}, //nolint:gomnd // it's fine to hardcode the defaults
