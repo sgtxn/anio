@@ -19,6 +19,13 @@ output:
   unique-by-line: true
   sort-results: true
 
+issues:
+  exclude-rules:
+    - linters:
+        - revive
+      text: "^comment-spacings: no space between comment delimiter and comment text"
+      source: "//(nolint:)"
+
 linters-settings:
   cyclop:
     max-complexity: 20 # Default: 10
@@ -168,7 +175,7 @@ linters:
     - errchkjson # checks types passed to json encoders
     - exhaustive # checks exhaustiveness of enum switch statements
     - forbidigo # forbids some function calls, configurable, by default forbids fmt.Print
-    - gofumpt # a stricter gofmt
+    - gofmt # checks that the code is formatted correctly
     - gocritic # a huge and opinionated but useful linter
     - goimports # checks imports order
     - gosec # checks for security issues
@@ -236,6 +243,7 @@ linters:
   disable:
     # temporarily
     - gci # controls package import order. temporarily doesn't work on win
+    - gofumpt # produces weird conflicts with standalone tool; replaced by gofmt
     # deprecated
     - golint # deprecated, replaced with revive
     - interfacer # deprecated
@@ -251,7 +259,6 @@ linters:
     # duplicates
     - forcetypeassert # warns on unchecked type asserts; duplicates errcheck.check-type-assertions behaviour
     - gocyclo # same as cyclop and revive has cyclo check as well
-    - gofmt # superseded by gofumpt
 
     # not needed or annoying
     - decorder # checks the order and number of declaration; annoying

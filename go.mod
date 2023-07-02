@@ -5,12 +5,14 @@ go 1.20
 require github.com/rs/zerolog v1.29.1
 
 require (
+	github.com/BurntSushi/xgbutil v0.0.0-20190907113008-ad855c713046
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/oauth2 v0.7.0
 )
 
 require (
+	github.com/BurntSushi/xgb v0.0.0-20210121224620-deaf085860bc // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

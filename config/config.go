@@ -11,16 +11,19 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 
-	anilistCfg "anio/providers/anilist/config"
+	"anio/pkg/duration"
+	"anio/providers/anilist/consts"
 
 	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
-	Name          string             `json:"name"`
-	OS            string             `json:"os"`
-	AnilistConfig *anilistCfg.Config `json:"anilistConfig,omitempty"`
+	Name          string         `json:"name"`
+	OS            string         `json:"os"`
+	Inputs        *InputsConfig  `json:"inputs,omitempty"`
+	AnilistConfig *AnilistConfig `json:"anilist,omitempty"`
 
 	lock     sync.Mutex
 	selfPath string
@@ -100,7 +103,7 @@ func createDefaultConfig(cfgFilePath string) (*Config, error) {
 	log.Info().Msgf("creating default config under %s...", cfgFolderPath)
 
 	if !exists(cfgFolderPath) {
-		err := os.Mkdir(cfgFolderPath, 0o755)
+		err := os.Mkdir(cfgFolderPath, 0o744)
 		if err != nil {
 			return nil, fmt.Errorf("couldn't create folder: %w", err)
 		}
@@ -110,24 +113,23 @@ func createDefaultConfig(cfgFilePath string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("couldn't read user personal data: %w", err)
 	}
-	cfg := Config{
-		OS:            runtime.GOOS,
-		Name:          currentUser.Username,
-		AnilistConfig: anilistCfg.GetDefaultConfig(),
-	}
 
+	cfg := getDefaultConfig(runtime.GOOS, currentUser.Username)
 	cfg.selfPath = filepath.Join(cfgFolderPath, configFileName)
 
-	err = writeConfigToFile(&cfg)
+	err = writeConfigToFile(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't write config file: %w", err)
 	}
 
-	return &cfg, nil
+	return cfg, nil
 }
 
 func writeConfigToFile(cfg *Config) error {
-	cfgBytes, _ := json.MarshalIndent(cfg, "", "  ")
+	cfgBytes, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		return fmt.Errorf("error marshalling config: %w", err)
+	}
 
 	file, err := os.Create(cfg.selfPath)
 	if err != nil {
@@ -150,4 +152,26 @@ func writeConfigToFile(cfg *Config) error {
 func exists(cfgFilePath string) bool {
 	_, err := os.Stat(cfgFilePath)
 	return !os.IsNotExist(err)
+}
+
+func getDefaultConfig(userOS, username string) *Config {
+	return &Config{
+		OS:   userOS,
+		Name: username,
+		Inputs: &InputsConfig{
+			LocalPollers: &LocalAppConfig{
+				PollingInterval: duration.Duration{Duration: time.Second * 5}, //nolint:gomnd // it's fine to hardcode the defaults
+				MpvConfig: &MpvConfig{
+					Enabled:       false,
+					UseJSONRPCAPI: false,
+				},
+			},
+		},
+		AnilistConfig: &AnilistConfig{
+			Auth: AnilistAuthConfig{
+				ClientID:     consts.ClientID,
+				ClientSecret: consts.ClientSecret,
+			},
+		},
+	}
 }
