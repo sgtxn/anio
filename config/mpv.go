@@ -11,8 +11,9 @@ type MpvConfig struct {
 
 func (cfg *MpvConfig) GetProcessPollerConfig() PolledAppConfig {
 	return PolledAppConfig{
-		AppName:            "mpv",
-		AppExecutable:      "mpv.exe",
-		FilenameMatchRegex: regexp.MustCompile(`(.+) - mpv`),
+		AppName:              "mpv",
+		AppExecutableWindows: "mpv.exe",
+		AppExecutableLinux:   "mpv",
+		FilenameMatchRegex:   regexp.MustCompile(`(.+) - mpv`),
 	}
 }

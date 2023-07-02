@@ -19,11 +19,12 @@ type (
 
 type LocalAppConfig struct {
 	PollingInterval duration.Duration `json:"pollingInterval"`
-	MpvConfig       *MpvConfig        `json:"mpvConfig"`
+	MpvConfig       *MpvConfig        `json:"mpv"`
 }
 
 type PolledAppConfig struct {
-	AppName            string
-	AppExecutable      string
-	FilenameMatchRegex *regexp.Regexp
+	AppName              string
+	AppExecutableWindows string
+	AppExecutableLinux   string
+	FilenameMatchRegex   *regexp.Regexp
 }

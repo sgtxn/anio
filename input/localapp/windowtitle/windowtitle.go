@@ -7,12 +7,15 @@ import (
 	"fmt"
 	"os/exec"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
 	"anio/config"
 	"anio/input/shared"
 
+	"github.com/BurntSushi/xgbutil"
+	"github.com/BurntSushi/xgbutil/ewmh"
 	"github.com/rs/zerolog/log"
 )
 
@@ -45,10 +48,22 @@ func (poller *Poller) Start(ctx context.Context) {
 			return
 		case <-ticker.C:
 			for _, app := range poller.registeredApps {
-				fileName, err := pollApplicationWindows(app.AppExecutable, app.FilenameMatchRegex)
-				if err != nil {
-					log.Error().Err(err).Msg("error polling a windows process info")
+				var fileName string
+				var err error
+
+				switch runtime.GOOS {
+				case "windows":
+					fileName, err = pollApplicationWindows(app.AppExecutableWindows, app.FilenameMatchRegex)
+					if err != nil {
+						log.Error().Err(err).Msg("error polling a windows process info")
+					}
+				case "linux":
+					fileName, err = pollApplicationLinux(app.AppExecutableLinux, app.FilenameMatchRegex)
+					if err != nil {
+						log.Error().Err(err).Msg("error polling a linux process info")
+					}
 				}
+
 				if fileName == "" {
 					continue
 				}
@@ -88,4 +103,32 @@ func pollApplicationWindows(appName string, matcher *regexp.Regexp) (string, err
 	}
 
 	return "", fmt.Errorf("got an empty record")
+}
+
+func pollApplicationLinux(appName string, matcher *regexp.Regexp) (string, error) {
+	x, err := xgbutil.NewConn()
+	if err != nil {
+		return "", fmt.Errorf("can't establish a connection to X server: %w", err)
+	}
+
+	windowIDs, err := ewmh.ClientListStackingGet(x)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, windowID := range windowIDs {
+		windowName, err := ewmh.WmNameGet(x, windowID)
+		if err != nil {
+			panic(err)
+		}
+
+		if strings.Contains(windowName, appName) {
+			cleanedUpFilenameMatches := matcher.FindStringSubmatch(windowName)
+			if len(cleanedUpFilenameMatches) > 1 {
+				return cleanedUpFilenameMatches[1], nil
+			}
+		}
+	}
+
+	return "", nil
 }

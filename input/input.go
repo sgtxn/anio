@@ -11,16 +11,27 @@ import (
 )
 
 type Input struct {
-	LocalAppPoller localapp.LocalProcessPoller
+	LocalAppPoller *localapp.Poller
 }
 
 func New(cfg *config.InputsConfig, outputChan chan<- shared.InputFileInfo) *Input {
-	return &Input{
-		LocalAppPoller: *localapp.New(cfg.LocalPollers, outputChan),
+	var input Input
+
+	if cfg == nil {
+		return &input
 	}
+
+	if cfg.LocalPollers != nil {
+		input.LocalAppPoller = localapp.New(cfg.LocalPollers, outputChan)
+	}
+
+	return &input
 }
 
 func (input *Input) Start(ctx context.Context) {
 	log.Info().Msg("initializing inputs...")
-	input.LocalAppPoller.Start(ctx)
+
+	if input.LocalAppPoller != nil {
+		input.LocalAppPoller.Start(ctx)
+	}
 }
