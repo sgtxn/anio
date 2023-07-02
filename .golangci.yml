@@ -196,7 +196,7 @@ linters:
     - revive # replaces golint, very configurable
     - rowserrcheck # checks whether Err of rows is checked successfully
     - stylecheck # another replacement for golint
-    # - tagalign # check that struct tags are well aligned; since v1.53
+    - tagalign # check that struct tags are well aligned
     - tenv # detects using os.Setenv instead of t.Setenv since go 1.17
     - thelper # detects golang test helpers without t.Helper() call and checks their consistency
     - unparam # reports unused function parameters
@@ -214,13 +214,14 @@ linters:
     - exportloopref # checks for pointers to enclosing loop variables
     - gocheckcompilerdirectives # Checks that go compiler directive comments (//go:) are valid
     - goprintffuncname # checks that printf-like functions are named with `f` at the end
+    - mirror # reports wrong mirror patterns of bytes/strings usage
     - nilerr # warns when you do `if err != nil { return nil }`
     - noctx # warns when you send an http request without context
     - sqlclosecheck # checks that sql.Rows and sql.Stmt are closed
     - tparallel # detects inappropriate usage of t.Parallel() method
     - unconvert # warns on unnecessary type conversions
     - wastedassign # finds unused (re)assignments
-    # - zerologlint # detects the wrong usage of zerolog that a user forgets to dispatch with Send or Msg; since v1.53
+    - zerologlint # detects the wrong usage of zerolog that a user forgets to dispatch with Send or Msg
 
     # these can be disabled in custom configs if there's a real need for that
     # configurable
@@ -230,7 +231,7 @@ linters:
     - gocognit # enforces a limit on function complexity
     - goconst # replace repeated strings with a constant
     - gomnd # detects magic numbers
-    # - gosmopolitan # reports some anti-patterns; since v1.53
+    - gosmopolitan # reports some anti-patterns
     - ireturn # disallows returing interfaces ("accept interfaces, return concrete types")
     - lll # warns on long lines
     - nestif # warns on many nested ifs

@@ -112,6 +112,7 @@ func pollApplicationWindows(appName string, matcher *regexp.Regexp) (string, err
 	return "", fmt.Errorf("got an empty record")
 }
 
+// TODO: Wayland support
 func pollApplicationLinux(appName string, matcher *regexp.Regexp) (string, error) {
 	x, err := xgbutil.NewConn()
 	if err != nil {
