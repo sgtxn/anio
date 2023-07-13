@@ -8,6 +8,7 @@ import (
 	"anio/config"
 	"anio/input"
 	"anio/input/shared"
+	"anio/titleparser"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -37,11 +38,15 @@ func main() {
 
 	zerolog.SetGlobalLevel(cfg.LogLevel)
 
-	outputChan := make(chan shared.InputFileInfo)
-	inputBlock := input.New(cfg.Inputs, outputChan)
-	inputBlock.Start(ctx)
+	inputsChan := make(chan shared.PlaybackFileInfo)
+	inputs := input.New(cfg.Inputs, inputsChan)
+	inputs.Start(ctx)
 
-	for data := range outputChan {
-		log.Info().Any("data", data).Send()
+	parsedTitlesChan := make(chan shared.PlaybackAnimeDetails)
+	titleParser := titleparser.New(inputsChan, parsedTitlesChan)
+	titleParser.Start()
+
+	for data := range parsedTitlesChan {
+		log.Info().Any("parsedTitle", data).Send()
 	}
 }

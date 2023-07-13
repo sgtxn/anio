@@ -14,7 +14,7 @@ type Input struct {
 	LocalAppPoller *localapp.Poller
 }
 
-func New(cfg *inputs.Config, outputChan chan<- shared.InputFileInfo) *Input {
+func New(cfg *inputs.Config, outputChan chan<- shared.PlaybackFileInfo) *Input {
 	var input Input
 
 	if cfg.LocalPollers != nil {

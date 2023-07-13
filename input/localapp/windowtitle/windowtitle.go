@@ -22,10 +22,10 @@ import (
 type Poller struct {
 	interval       time.Duration
 	registeredApps []inputs.PolledAppConfig
-	outputChan     chan<- shared.InputFileInfo
+	outputChan     chan<- shared.PlaybackFileInfo
 }
 
-func New(interval time.Duration, outputChan chan<- shared.InputFileInfo) *Poller {
+func New(interval time.Duration, outputChan chan<- shared.PlaybackFileInfo) *Poller {
 	return &Poller{
 		interval:   interval,
 		outputChan: outputChan,
@@ -72,7 +72,7 @@ func (poller *Poller) Start(ctx context.Context) {
 
 				log.Debug().Str("filename", fileName).Str("app", app.AppName).Msg("got an event")
 
-				poller.outputChan <- shared.InputFileInfo{FileName: fileName, SourceApplication: app.AppName}
+				poller.outputChan <- shared.PlaybackFileInfo{FileName: fileName, SourceApplication: app.AppName}
 			}
 		}
 	}
