@@ -17,7 +17,7 @@ type Poller struct {
 	CustomPollers     []CustomPoller
 }
 
-func New(cfg *inputs.LocalAppConfig, outputChan chan<- shared.InputFileInfo) *Poller {
+func New(cfg *inputs.LocalAppConfig, outputChan chan<- shared.PlaybackFileInfo) *Poller {
 	windowTitlePoller := windowtitle.New(cfg.PollingInterval.Duration, outputChan)
 
 	if cfg.MpvConfig != nil && cfg.MpvConfig.Enabled {
