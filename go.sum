@@ -9,6 +9,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
+github.com/fatih/color v1.15.0 h1:kOqh6YHBtK8aywxGerMG2Eq3H6Qgoqeo13Bk2Mv/nBs=
+github.com/fatih/color v1.15.0/go.mod h1:0h5ZqXfHYED7Bhv2ZJamyIOUej9KtShiJESRwBDUSsw=
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
@@ -60,6 +62,8 @@ github.com/uptrace/bun/dialect/sqlitedialect v1.1.14 h1:SlwXLxr+N1kEo8Q0cheRlnIZ
 github.com/uptrace/bun/dialect/sqlitedialect v1.1.14/go.mod h1:9RTEj1l4bB9a4l1Mnc9y4COTwWlFYe1dh6fyxq1rR7A=
 github.com/uptrace/bun/driver/sqliteshim v1.1.14 h1:DFPUJ6KjDP2myjq15gtYYNngmAFMww1Y2UFZv4tbUw8=
 github.com/uptrace/bun/driver/sqliteshim v1.1.14/go.mod h1:5BFN7V6Sm37Tn7UE4FWNm/F6V3iJPUzAJ7QyRwA5b1k=
+github.com/uptrace/bun/extra/bundebug v1.1.14 h1:9OCGfP9ZDlh41u6OLerWdhBtJAVGXHr0xtxO4xWi6t0=
+github.com/uptrace/bun/extra/bundebug v1.1.14/go.mod h1:lto3guzS2v6mnQp1+akyE+ecBLOltevDDe324NXEYdw=
 github.com/vmihailenco/msgpack/v5 v5.3.5 h1:5gO0H1iULLWGhs2H5tbAHIZTV8/cYafcFOr9znI5mJU=
 github.com/vmihailenco/msgpack/v5 v5.3.5/go.mod h1:7xyJ9e+0+9SaZT0Wt1RGleJXzli6Q/V5KbhBonMG9jc=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=

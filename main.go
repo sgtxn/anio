@@ -8,6 +8,7 @@ import (
 	"anio/config"
 	"anio/input"
 	"anio/input/shared"
+	"anio/storage"
 	"anio/titleparser"
 
 	"github.com/rs/zerolog"
@@ -45,6 +46,11 @@ func main() {
 	parsedTitlesChan := make(chan shared.PlaybackAnimeDetails)
 	titleParser := titleparser.New(inputsChan, parsedTitlesChan)
 	titleParser.Start()
+
+	_, err = storage.New(".")
+	if err != nil {
+		log.Fatal().Err(err).Msg("couldn't initialize the database")
+	}
 
 	for data := range parsedTitlesChan {
 		log.Info().Any("parsedTitle", data).Send()

@@ -12,6 +12,7 @@ require (
 	github.com/uptrace/bun v1.1.14
 	github.com/uptrace/bun/dialect/sqlitedialect v1.1.14
 	github.com/uptrace/bun/driver/sqliteshim v1.1.14
+	github.com/uptrace/bun/extra/bundebug v1.1.14
 	golang.org/x/oauth2 v0.7.0
 )
 
@@ -19,6 +20,7 @@ require (
 	github.com/BurntSushi/xgb v0.0.0-20210121224620-deaf085860bc // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/fatih/color v1.15.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
