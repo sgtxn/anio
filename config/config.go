@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"runtime"
 	"sync"
 	"time"
 
@@ -36,19 +35,6 @@ const (
 	configFileName = "config.json"
 )
 
-func GetConfigFilePath(projectFolderName string) (string, error) {
-	switch runtime.GOOS {
-	case "windows", "linux", "darwin":
-		configFolderPath, err := os.UserConfigDir()
-		if err != nil {
-			return "", fmt.Errorf("cannot access user config folder: %w", err)
-		}
-		return filepath.Join(configFolderPath, projectFolderName, configFileName), nil
-	default:
-		return "", fmt.Errorf("unsupported OS: %s", runtime.GOOS)
-	}
-}
-
 // SaveConfig updates the locally saved config.
 func (cfg *Config) SaveConfig() error {
 	cfg.lock.Lock()
@@ -62,7 +48,8 @@ func (cfg *Config) SaveConfig() error {
 }
 
 // Load checks user's OS, then reads config data from file or creates a new default config.
-func Load(configFilePath string) (*Config, error) {
+func Load(configDirPath string) (*Config, error) {
+	configFilePath := filepath.Join(configDirPath, configFileName)
 	if !exists(configFilePath) {
 		log.Info().Msg("config file not found. Creating a default one.")
 		conf, err := createDefaultConfig(configFilePath)
@@ -110,15 +97,7 @@ func loadExistingConfig(cfgFilePath string) (*Config, error) {
 }
 
 func createDefaultConfig(cfgFilePath string) (*Config, error) {
-	cfgFolderPath := filepath.Dir(cfgFilePath)
-	log.Info().Msgf("creating default config under %s...", cfgFolderPath)
-
-	if !exists(cfgFolderPath) {
-		err := os.Mkdir(cfgFolderPath, 0o744)
-		if err != nil {
-			return nil, fmt.Errorf("couldn't create folder: %w", err)
-		}
-	}
+	log.Info().Msgf("creating default config at %s...", cfgFilePath)
 
 	currentUser, err := user.Current()
 	if err != nil {
@@ -126,7 +105,7 @@ func createDefaultConfig(cfgFilePath string) (*Config, error) {
 	}
 
 	cfg := getDefaultConfig(currentUser.Username)
-	cfg.selfPath = filepath.Join(cfgFolderPath, configFileName)
+	cfg.selfPath = cfgFilePath
 
 	err = writeConfigToFile(cfg)
 	if err != nil {
