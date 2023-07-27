@@ -8,14 +8,12 @@ import (
 	"anio/config"
 	"anio/input"
 	"anio/input/shared"
+	"anio/pkg/userdirs"
+	"anio/storage"
 	"anio/titleparser"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-)
-
-const (
-	projectFolderName = "anio"
 )
 
 func main() {
@@ -24,12 +22,12 @@ func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.DateTime})
 
 	log.Info().Msg("loading config...")
-	cfgFilePath, err := config.GetConfigFilePath(projectFolderName)
+	anioCfgDir, err := userdirs.GetProjectConfigDirectory()
 	if err != nil {
-		log.Fatal().Err(err).Msg("couldn't get config file path")
+		log.Fatal().Err(err).Msg("couldn't get project config file path")
 	}
 
-	cfg, err := config.Load(cfgFilePath)
+	cfg, err := config.Load(anioCfgDir)
 	if err != nil {
 		log.Fatal().Err(err).Msg("couldn't load config")
 	}
@@ -45,6 +43,16 @@ func main() {
 	parsedTitlesChan := make(chan shared.PlaybackAnimeDetails)
 	titleParser := titleparser.New(inputsChan, parsedTitlesChan)
 	titleParser.Start()
+
+	anioDataDir, err := userdirs.GetProjectDataDirectory()
+	if err != nil {
+		log.Fatal().Err(err).Msg("couldn't get user data directory")
+	}
+
+	_, err = storage.New(anioDataDir)
+	if err != nil {
+		log.Fatal().Err(err).Msg("couldn't initialize the database")
+	}
 
 	for data := range parsedTitlesChan {
 		log.Info().Any("parsedTitle", data).Send()
