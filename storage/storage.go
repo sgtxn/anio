@@ -46,27 +46,29 @@ func New(path string) (*Storage, error) {
 
 	st := &Storage{db: db}
 
-	// st.db.NewCreateTable().Table("test_table").Exec(context.Background())
-
-	if err = st.migrate(context.Background()); err != nil {
+	if err = st.runMigrations(context.Background()); err != nil {
 		return nil, fmt.Errorf("migrations error: %w", err)
 	}
 
 	return st, nil
 }
 
-func (st *Storage) migrate(ctx context.Context) error {
+func (st *Storage) runMigrations(ctx context.Context) error {
 	migrator := migrate.NewMigrator(st.db, migrations.Migrations)
-	if err := migrator.Init(context.Background()); err != nil {
+	if err := migrator.Init(ctx); err != nil {
 		return fmt.Errorf("migrator init error: %w", err)
 	}
 
 	if err := migrator.Lock(ctx); err != nil {
 		return err
 	}
-	defer migrator.Unlock(ctx) //nolint:errcheck
+	defer func() {
+		if err := migrator.Unlock(ctx); err != nil {
+			log.Error().Err(err).Msg("failed to unlock the db after running migrations")
+		}
+	}()
 
-	group, err := migrator.Migrate(context.Background())
+	group, err := migrator.Migrate(ctx)
 	if err != nil {
 		return fmt.Errorf("migrations apply error: %w", err)
 	}
