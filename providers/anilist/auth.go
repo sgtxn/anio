@@ -14,11 +14,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type Auth struct {
-	Client *http.Client
-}
-
-func Authenticate(ctx context.Context, cfg *outputs.AnilistAuthConfig) (*Auth, error) {
+func authenticate(ctx context.Context, cfg *outputs.AnilistAuthConfig) (*http.Client, error) {
 	oauthCfg := &oauth2.Config{
 		ClientID:     cfg.ClientID,
 		ClientSecret: cfg.ClientSecret,
@@ -51,5 +47,5 @@ func Authenticate(ctx context.Context, cfg *outputs.AnilistAuthConfig) (*Auth, e
 
 	client := oauthCfg.Client(ctx, token)
 
-	return &Auth{Client: client}, nil
+	return client, nil
 }
