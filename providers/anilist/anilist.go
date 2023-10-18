@@ -6,10 +6,13 @@ import (
 	"net/http"
 
 	"anio/config/outputs"
+
+	"github.com/hasura/go-graphql-client"
 )
 
 type Client struct {
-	httpClient *http.Client
+	httpClient    *http.Client
+	graphqlClient *graphql.Client
 }
 
 func New(ctx context.Context, cfg *outputs.AnilistAuthConfig) (*Client, error) {
@@ -19,6 +22,7 @@ func New(ctx context.Context, cfg *outputs.AnilistAuthConfig) (*Client, error) {
 	}
 
 	return &Client{
-		httpClient: client,
+		httpClient:    client,
+		graphqlClient: graphql.NewClient("https://graphql.anilist.co", client),
 	}, nil
 }
