@@ -1,3 +1,4 @@
+//nolint:revive // can't do without nested structs here
 package anilist
 
 import "github.com/hasura/go-graphql-client"
