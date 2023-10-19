@@ -8,11 +8,9 @@ import (
 	"anio/config"
 	"anio/pkg/userdirs"
 	"anio/providers/anilist"
-	"anio/shared"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"gopkg.in/guregu/null.v4"
 )
 
 func main() {
@@ -62,10 +60,7 @@ func main() {
 		log.Fatal().Err(err).Msg("couldn't connect to anilist")
 	}
 
-	err = client.UpdateAnime(&shared.AnimeUpdateParams{
-		ID:       null.IntFrom(147103),
-		Progress: null.IntFrom(3),
-	})
+	err = client.UpdateAnime(nil)
 	if err != nil {
 		log.Error().Err(err).Send()
 	}

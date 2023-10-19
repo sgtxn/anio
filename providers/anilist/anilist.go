@@ -13,15 +13,17 @@ import (
 type Client struct {
 	httpClient    *http.Client
 	graphqlClient *graphql.Client
+	userID        int
 }
 
 func New(ctx context.Context, cfg *outputs.AnilistAuthConfig) (*Client, error) {
-	client, err := authenticate(ctx, cfg)
+	client, userID, err := authenticate(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("anilist authentication error: %w", err)
 	}
 
 	return &Client{
+		userID:        userID,
 		httpClient:    client,
 		graphqlClient: graphql.NewClient("https://graphql.anilist.co", client),
 	}, nil

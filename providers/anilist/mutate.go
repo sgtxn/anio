@@ -34,7 +34,7 @@ func (anilist *Client) UpdateAnime(params *shared.AnimeUpdateParams) error {
 		requestVars["scoreRaw"] = 0
 	}
 
-	err := anilist.graphqlClient.Mutate(context.Background(), &updateEntryQuery{}, requestVars)
+	err := anilist.graphqlClient.Mutate(context.Background(), &updateEntryMutation{}, requestVars)
 	if err != nil {
 		return fmt.Errorf("error calling an anilist update: %w", err)
 	}
