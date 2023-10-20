@@ -58,7 +58,7 @@ type userListQuery struct {
 	} `graphql:"MediaListCollection(userId:$userId,forceSingleCompletedList:true,type:ANIME)"`
 }
 
-type findAnimeQuery struct {
+type findAnimeByTitleQuery struct {
 	Page struct {
 		Media []struct {
 			ID       graphql.Int

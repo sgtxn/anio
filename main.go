@@ -60,8 +60,6 @@ func main() {
 		log.Fatal().Err(err).Msg("couldn't connect to anilist")
 	}
 
-	err = client.UpdateAnime(nil)
-	if err != nil {
-		log.Error().Err(err).Send()
-	}
+	list, err := client.FindAnimeByTitle("Toradora", 1)
+	log.Info().Interface("list", list).Err(err).Send()
 }
